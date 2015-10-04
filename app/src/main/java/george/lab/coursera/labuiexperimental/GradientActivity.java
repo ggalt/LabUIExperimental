@@ -65,11 +65,12 @@ public class GradientActivity extends AppCompatActivity {
                 LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
         linearLayout.addView(gv);
 
-        colorOne = savedInstanceState.getInt("COLOR_ONE",Color.BLUE);
-        colorTwo = savedInstanceState.getInt("COLOR_TWO",Color.YELLOW);
-        colorThree = savedInstanceState.getInt("COLOR_THREE",Color.RED);
-        colorFour = savedInstanceState.getInt("COLOR_FOUR",Color.GREEN);
-        gradiantType = savedInstanceState.getInt("GRADIENT", RADIAL);
+        Bundle extras = getIntent().getExtras();
+        colorOne = extras.getInt("COLOR_ONE",Color.BLUE);
+        colorTwo = extras.getInt("COLOR_TWO",Color.YELLOW);
+        colorThree = extras.getInt("COLOR_THREE",Color.RED);
+        colorFour = extras.getInt("COLOR_FOUR",Color.GREEN);
+        gradiantType = extras.getInt("GRADIENT", RADIAL);
     }
     private int circularShift( int bits, int k ){
         return (bits >>> k) | (bits << (Integer.SIZE - k));
