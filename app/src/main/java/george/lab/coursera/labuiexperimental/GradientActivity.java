@@ -11,6 +11,7 @@ import android.graphics.Shader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -23,14 +24,16 @@ public class GradientActivity extends AppCompatActivity {
     private SeekBar seekBar;
     private SeekBar.OnSeekBarChangeListener seekBarChangeListener;
 
-    int colorOne = Color.BLUE;
-    int colorTwo = Color.YELLOW;
-    int colorThree = Color.RED;
-    int colorFour = Color.GREEN;
+    private int colorOne = Color.BLUE;
+    private int colorTwo = Color.YELLOW;
+    private int colorThree = Color.RED;
+    private int colorFour = Color.GREEN;
     private int[] gColors = new int[]{Color.BLUE, Color.YELLOW, Color.RED, Color.GREEN};
-    private int RADIAL = 1;
-    private int LINEAR = 2;
-    private int gradiantType = RADIAL;
+    private static int RADIAL = 1;
+    private static int LINEAR = 2;
+    private int gradientType = LINEAR;
+
+    private static final String TAG = "Gradient Activity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +42,14 @@ public class GradientActivity extends AppCompatActivity {
         linearLayout = (LinearLayout) findViewById(R.id.MainLayout);
         seekBar = (SeekBar)findViewById(R.id.radiusMeasure);
         seekBar.setMax(31);
+
+        Bundle extras = getIntent().getExtras();
+        colorOne = extras.getInt("COLOR_ONE");
+        colorTwo = extras.getInt("COLOR_TWO");
+        colorThree = extras.getInt("COLOR_THREE");
+        colorFour = extras.getInt("COLOR_FOUR");
+        gradientType = extras.getInt("GRADIENT");
+        Log.i(TAG, "Gradient is: " + gradientType);
 
         seekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -64,13 +75,7 @@ public class GradientActivity extends AppCompatActivity {
         gv.setLayoutParams(new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
         linearLayout.addView(gv);
-
-        Bundle extras = getIntent().getExtras();
-        colorOne = extras.getInt("COLOR_ONE",Color.BLUE);
-        colorTwo = extras.getInt("COLOR_TWO",Color.YELLOW);
-        colorThree = extras.getInt("COLOR_THREE",Color.RED);
-        colorFour = extras.getInt("COLOR_FOUR",Color.GREEN);
-        gradiantType = extras.getInt("GRADIENT", RADIAL);
+        gv.SetGradient();
     }
     private int circularShift( int bits, int k ){
         return (bits >>> k) | (bits << (Integer.SIZE - k));
@@ -116,8 +121,14 @@ public class GradientActivity extends AppCompatActivity {
             height = h;
             bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
             setClickable(true);
-            centerX = (float) getWidth() / 2F;
-            centerY = (float) getHeight() / 2F;
+            if(gradientType == RADIAL) {
+                centerX = (float) width / 2F;
+                centerY = (float) height / 2F;
+            }
+            else {
+                centerX = (float) width;
+                centerY = (float) height;
+            }
             radius = height > width ? (float)height/2F : (float)width/2F;
 
             touchListener = new OnTouchListener() {
@@ -137,18 +148,19 @@ public class GradientActivity extends AppCompatActivity {
 
 
         public void SetGradient(){
-            if( gradiantType == RADIAL ) {
-                radialGradient =
-                        new RadialGradient(centerX, centerY, radius, gColors, null, Shader.TileMode.CLAMP);
-                if (!mSetShader) {
-                    mPaint.setShader(radialGradient);
-                }
-            }
-            else {
+//            Log.i(TAG,"Gradient now is type: "+gradientType);
+            if(gradientType == LINEAR) {
                 linearGradient =
                         new LinearGradient(0,0,centerX,centerY,gColors,null, Shader.TileMode.CLAMP);
                 if (!mSetShader) {
                     mPaint.setShader(linearGradient);
+                }
+            }
+            else {
+                radialGradient =
+                        new RadialGradient(centerX, centerY, radius, gColors, null, Shader.TileMode.CLAMP);
+                if (!mSetShader) {
+                    mPaint.setShader(radialGradient);
                 }
             }
             invalidate();
